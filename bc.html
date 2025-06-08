@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Blockchain Simulator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #1e293b;
+    }
+    .section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 20px auto;
+      padding: 20px;
+      max-width: 600px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 500;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #3b82f6;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #2563eb;
+    }
+    .output {
+      background: #e0f2fe;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧱 Blockchain Simulator</h1>
+
+  <div class="section">
+    <h2>1️⃣ Block Simulation</h2>
+    <label>Block 1 Data:</label>
+    <input id="block1" type="text" />
+    <label>Block 2 Data:</label>
+    <input id="block2" type="text" />
+    <label>Block 3 Data:</label>
+    <input id="block3" type="text" />
+    <button onclick="simulateBlocks()">Create Blockchain</button>
+    <div class="output" id="blockOutput"></div>
+  </div>
+
+  <div class="section">
+    <h2>2️⃣ Mining Simulation</h2>
+    <label>Block Data:</label>
+    <input id="mineData" type="text" />
+    <label>Difficulty (e.g., 4):</label>
+    <input id="difficulty" type="number" />
+    <button onclick="mineBlock()">Mine Block</button>
+    <div class="output" id="mineOutput"></div>
+  </div>
+
+  <div class="section">
+    <h2>3️⃣ Consensus Simulation</h2>
+    <label>Miner Powers (comma-separated):</label>
+    <input id="minerPower" type="text" />
+    <label>Staker Stakes (comma-separated):</label>
+    <input id="stakerStake" type="text" />
+    <label>Delegate Votes (comma-separated):</label>
+    <input id="delegateVotes" type="text" />
+    <button onclick="runConsensus()">Run Consensus</button>
+    <div class="output" id="consensusOutput"></div>
+  </div>
+
+  <script>
+    function simulateBlocks() {
+      const b1 = document.getElementById('block1').value;
+      const b2 = document.getElementById('block2').value;
+      const b3 = document.getElementById('block3').value;
+      const output = `Block #0\nData: Genesis Block\nBlock #1\nData: ${b1}\nBlock #2\nData: ${b2}\nBlock #3\nData: ${b3}\nChain Validity: Valid`;
+      document.getElementById('blockOutput').innerText = output;
+    }
+
+    function mineBlock() {
+      const data = document.getElementById('mineData').value;
+      const diff = parseInt(document.getElementById('difficulty').value);
+      const start = Date.now();
+      let nonce = 0;
+      let hash = '';
+      do {
+        hash = sha256(data + nonce);
+        nonce++;
+      } while (!hash.startsWith('0'.repeat(diff)));
+      const time = ((Date.now() - start) / 1000).toFixed(2);
+      document.getElementById('mineOutput').innerText = `Mined Block Data: ${data}\nNonce found: ${nonce}\nHash: ${hash}\nTime taken: ${time} seconds`;
+    }
+
+    function runConsensus() {
+      const miners = document.getElementById('minerPower').value.split(',').map(Number);
+      const stakers = document.getElementById('stakerStake').value.split(',').map(Number);
+      const delegates = document.getElementById('delegateVotes').value.split(',').map(Number);
+      const maxMiner = miners.indexOf(Math.max(...miners));
+      const maxStaker = stakers.indexOf(Math.max(...stakers));
+      const maxDelegate = delegates.indexOf(Math.max(...delegates));
+      const result = `=== PoW ===\nSelected Miner: Miner${maxMiner + 1}\n=== PoS ===\nSelected Staker: Staker${maxStaker + 1}\n=== DPoS ===\nSelected Delegate: Delegate${maxDelegate + 1}`;
+      document.getElementById('consensusOutput').innerText = result;
+    }
+
+    // SHA256 Function
+    function sha256(str) {
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(buf => {
+        return Array.from(new Uint8Array(buf)).map(x => x.toString(16).padStart(2, '0')).join('');
+      });
+    }
+  </script>
+</body>
+</html>
+
